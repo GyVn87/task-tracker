@@ -1,7 +1,7 @@
 #include <iostream>
 #include "json.hpp"
-#include <vector>
 #include <fstream>
+#include <cstdlib>
 using namespace std;
 using json = nlohmann::json;
 
@@ -15,18 +15,22 @@ struct Task {
 // ==================== Function Prototype ====================
 void displayMenu();
 
-void processChoice(vector<Task> tasks);
+void processChoice(string tasksFile);
 
-void viewTasks(vector<Task> tasks);
+void viewTasks(string tasksFile);
 
-void addTask();
+void addTask(string tasksFile);
 
 // ==================== main() ====================
 int main() {
-
-    vector<Task> tasks;
     displayMenu();
-    processChoice(tasks);
+    while (true) {
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+        processChoice("tasks.json");
+    }
     return 0;
 }
 
@@ -39,28 +43,33 @@ void displayMenu() {
     cout << "3 - Xem danh sach tac vu \n";
     cout << "4 - Danh dau hoan thanh tac vu \n";
     cout << "0 - Thoat \n";
-    cout << ">> Chon: ";
 }
 
-void processChoice(vector<Task> tasks) {
+
+void processChoice(string tasksFile) {
+    cout << ">> Chon: ";
     int choice;
     cin >> choice;
-    cin.ignore();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
     switch (choice) {
         case(0):
             cout << "Cam on ban da su dung Task Tracker! Hen gap lai!";
-            break;
+            exit(0);
         case 1:
-            addTask();
+            addTask(tasksFile);
+            break;
         case 2:
             // Xoa tac vu
+            break;
         case 3:
-            viewTasks(tasks);
+            viewTasks(tasksFile);
+            break;
     }
 }
 
-void addTask() {
-    ifstream inFile("tasks.json");
+
+void addTask(string tasksFile) {
+    ifstream inFile(tasksFile);
     json tasksJson;
     inFile >> tasksJson;
     inFile.close();
@@ -71,21 +80,28 @@ void addTask() {
     getline(cin, description);
     cout << "Nhap trang thai cho cong viec: ";
     cin >> isDone;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
     tasksJson.push_back({
         {"id", tasksJson.size() + 1},
         {"description", description},
         {"isDone", isDone}
     });
 
-    ofstream outFile("tasks.json");
+    ofstream outFile(tasksFile);
     outFile << tasksJson.dump(4);
     outFile.close();
 }
 
-void viewTasks(vector<Task> tasks) {
-    for (int i = 0; i < tasks.size(); i++) {
-        cout << "Ma so: " << tasks[i].id
-             << " | " << tasks[i].description
-             << " | " << "Trang thai: " << (tasks[i].isDone ? "Hoan thanh" : "Chua Xong") << endl;
+
+void viewTasks(string tasksFile) {
+    ifstream inFile(tasksFile);
+    json tasksJson;
+    inFile >> tasksJson;
+    inFile.close();
+
+    for (int index = 0; index < tasksJson.size(); index++) {
+        cout << "Ma so: " << tasksJson[index]["id"]
+             << " | " << tasksJson[index]["description"]
+             << " | " << "Trang thai: " << (tasksJson[index]["isDone"] ? "Hoan thanh" : "Chua Xong") << endl;
     }
 }
