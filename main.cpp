@@ -23,6 +23,8 @@ void addTask(string tasksFile);
 
 void deleteTask(string tasksFile);
 
+void finishTask(string tasksFile);
+
 // ==================== main() ====================
 int main() {
     displayMenu();
@@ -65,6 +67,9 @@ void processChoice(string tasksFile) {
             break;
         case 3:
             viewTasks(tasksFile);
+            break;
+        case 4:
+            finishTask(tasksFile);
             break;
     }
 }
@@ -126,6 +131,28 @@ void deleteTask(string tasksFile) {
         }
 
     ofstream outFile(tasksFile);
-    outFile << tasksJson;
+    outFile << tasksJson.dump(4);
+    outFile.close();
+}
+
+void finishTask(string tasksFile) {
+    ifstream inFile(tasksFile);
+    json tasksJson;
+    inFile >> tasksJson;
+    inFile.close();
+
+    int idToFinish;
+    cout << "Nhap ID cong viec ban muon danh dau la hoan thanh: ";
+    cin >> idToFinish;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    
+    for (auto iterator = tasksJson.begin(); iterator != tasksJson.end(); iterator++) 
+        if ((*iterator)["id"] == idToFinish) {
+            (*iterator)["isDone"] = true;
+            break;
+        }
+
+    ofstream outFile(tasksFile);
+    outFile << tasksJson.dump(4);
     outFile.close();
 }
