@@ -21,6 +21,8 @@ void viewTasks(string tasksFile);
 
 void addTask(string tasksFile);
 
+void deleteTask(string tasksFile);
+
 // ==================== main() ====================
 int main() {
     displayMenu();
@@ -59,7 +61,7 @@ void processChoice(string tasksFile) {
             addTask(tasksFile);
             break;
         case 2:
-            // Xoa tac vu
+            deleteTask(tasksFile);
             break;
         case 3:
             viewTasks(tasksFile);
@@ -104,4 +106,26 @@ void viewTasks(string tasksFile) {
              << " | " << tasksJson[index]["description"]
              << " | " << "Trang thai: " << (tasksJson[index]["isDone"] ? "Hoan thanh" : "Chua Xong") << endl;
     }
+}
+
+void deleteTask(string tasksFile) {
+    ifstream inFile(tasksFile);
+    json tasksJson;
+    inFile >> tasksJson;
+    inFile.close();
+
+    int idToRemove;
+    cout << "Nhap ID cong viec ban muon xoa: ";
+    cin >> idToRemove;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    
+    for (auto iterator = tasksJson.begin(); iterator != tasksJson.end(); iterator++) 
+        if ((*iterator)["id"] == idToRemove) {
+            tasksJson.erase(iterator);
+            break;
+        }
+
+    ofstream outFile(tasksFile);
+    outFile << tasksJson;
+    outFile.close();
 }
